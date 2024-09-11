@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="300" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const blockSize = 30;
+        const boardWidth = 10;
+        const boardHeight = 20;
+        let board = Array(boardHeight).fill().map(() => Array(boardWidth).fill(0));
+        let currentPiece;
+        let gameLoop;
+
+        const shapes = [
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 1], [1, 0, 0]],
+            [[1, 1, 1], [0, 0, 1]],
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]]
+        ];
+
+        const colors = ['#00ffff', '#ffff00', '#800080', '#0000ff', '#ff7f00', '#00ff00', '#ff0000'];
+
+        class Piece {
+            constructor(shape, color) {
+                this.shape = shape;
+                this.color = color;
+                this.x = Math.floor(boardWidth / 2) - Math.ceil(shape[0].length / 2);
+                this.y = 0;
+            }
+
+            rotate() {
+                const rotated = this.shape[0].map((_, i) => this.shape.map(row => row[i]).reverse());
+                if (this.isValid(rotated, this.x, this.y)) {
+                    this.shape = rotated;
+                }
+            }
+
+            isValid(shape, x, y) {
+                return shape.every((row, dy) =>
+                    row.every((value, dx) =>
+                        value === 0 || (
+                            x + dx >= 0 &&
+                            x + dx < boardWidth &&
+                            y + dy < boardHeight &&
+                            (y + dy < 0 || board[y + dy][x + dx] === 0)
+                        )
+                    )
+                );
+            }
+
+            moveDown() {
+                if (this.isValid(this.shape, this.x, this.y + 1)) {
+                    this.y++;
+                } else {
+                    this.lock();
+                    clearLines();
+                    spawnPiece();
+                }
+            }
+
+            moveLeft() {
+                if (this.isValid(this.shape, this.x - 1, this.y)) {
+                    this.x--;
+                }
+            }
+
+            moveRight() {
+                if (this.isValid(this.shape, this.x + 1, this.y)) {
+                    this.x++;
+                }
+            }
+
+            lock() {
+                this.shape.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) {
+                            board[this.y + y][this.x + x] = this.color;
+                        }
+                    });
+                });
+            }
+        }
+
+        function spawnPiece() {
+            const randomIndex = Math.floor(Math.random() * shapes.length);
+            currentPiece = new Piece(shapes[randomIndex], colors[randomIndex]);
+            if (!currentPiece.isValid(currentPiece.shape, currentPiece.x, currentPiece.y)) {
+                clearInterval(gameLoop);
+                alert('Game Over!');
+            }
+        }
+
+        function clearLines() {
+            for (let y = boardHeight - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== 0)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(boardWidth).fill(0));
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw board
+            board.forEach((row, y) => {
+                row.forEach((color, x) => {
+                    if (color !== 0) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                    }
+                });
+            });
+
+            // Draw current piece
+            ctx.fillStyle = currentPiece.color;
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.fillRect((currentPiece.x + x) * blockSize, (currentPiece.y + y) * blockSize, blockSize, blockSize);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect((currentPiece.x + x) * blockSize, (currentPiece.y + y) * blockSize, blockSize, blockSize);
+                    }
+                });
+            });
+        }
+
+        function gameUpdate() {
+            currentPiece.moveDown();
+            draw();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowLeft':
+                    currentPiece.moveLeft();
+                    break;
+                case 'ArrowRight':
+                    currentPiece.moveRight();
+                    break;
+                case 'ArrowDown':
+                    currentPiece.moveDown();
+                    break;
+                case 'ArrowUp':
+                    currentPiece.rotate();
+                    break;
+            }
+            draw();
+        });
+
+        spawnPiece();
+        gameLoop = setInterval(gameUpdate, 500);
+        draw();
+    </script>
+</body>
+</html>
