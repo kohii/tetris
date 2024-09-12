@@ -186,6 +186,11 @@
             draw();
         });
 
+        document.addEventListener("click", (e) => {
+            // prevent double tap to zoom on mobile
+            e.preventDefault();
+        });
+
         function minmax(value, min, max) {
             return Math.min(Math.max(value, min), max);
         }
