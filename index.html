@@ -240,7 +240,7 @@
                 const dx = Math.floor((touchendX - touchstartX) / blockSize);
                 const dy = Math.floor((touchendY - touchstartY) / blockSize);
 
-                if (dy >= 2 && !movedX && Date.now() - touchStartedAt < 200) {
+                if (dy >= 3 && !movedX && Date.now() - touchStartedAt < 100) {
                     // move to bottom if swipe down quickly
                     while (currentPiece.isValid(currentPiece.shape, currentPiece.x, currentPiece.y + 1)) {
                         currentPiece.moveDown();
