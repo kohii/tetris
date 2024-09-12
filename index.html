@@ -181,10 +181,6 @@
             }
             draw();
         });
-        canvas.addEventListener("click", () => {
-            currentPiece.rotate();
-            draw();
-        });
 
         function minmax(value, min, max) {
             return Math.min(Math.max(value, min), max);
@@ -199,6 +195,8 @@
             let moveTargetPiece = null;
             let touchStartedAt = null;
             let movedX = false;
+            let movedY = false;
+            let moved = false;
 
             let moveDownGestureTimer = null;
             function startTrackingMoveDownGesture() {
@@ -226,10 +224,13 @@
                 moveTargetPiece = currentPiece;
                 touchStartedAt = Date.now();
                 movedX = false;
+                movedY = false;
+                moved = false;
 
                 startTrackingMoveDownGesture();
             }, false);
             document.addEventListener("touchmove", (event) => {
+                moved = true;
                 if (moveTargetPiece !== currentPiece) {
                     moveTargetPiece = null;
                     return;
@@ -246,18 +247,24 @@
                         currentPiece.moveDown();
                     }
                     draw();
+                    movedY = true;
                     return;
                 }
 
-                if (dx >= 1 || dx <= -1) {
-                    movedX = true;
+                if (!movedY && (dx >= 1 || dx <= -1)) {
                     currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
+                    movedX = true;
                 }
             }, false);
             document.addEventListener("touchend", (event) => {
                 moveTargetPiece = null;
                 stopTrackingMoveDownGesture();
+
+                if (!moved) {
+                    currentPiece.rotate();
+                    draw();
+                }
             }, false);
         })();
 
