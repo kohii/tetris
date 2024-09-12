@@ -197,18 +197,19 @@
             let touchendY = 0;
             let initialX = null;
             let moveTargetPiece = null;
+            let moveType = null; // "x" | "y" | null
 
             let moveDownGestureTimer = null;
             function startTrackingMoveDownGesture() {
                 moveDownGestureTimer = setInterval(() => {
-                    if (currentPiece !== moveTargetPiece) {
-                        return;
-                    }
+                    if (currentPiece !== moveTargetPiece) return;
+                    if (moveType === "x") return;
 
                     const dy = Math.floor((touchendY - touchstartY) / blockSize);
                     if (dy >= 1) {
                         currentPiece.moveDown();
                         draw();
+                        moveType = "y";
                         return;
                     }
                 }, 400);
@@ -235,10 +236,12 @@
                 touchendX = event.changedTouches[0].screenX;
                 touchendY = event.changedTouches[0].screenY;
 
+                if (moveType === "y") return;
                 const dx = Math.floor((touchendX - touchstartX) / blockSize);
                 if (dx >= 1 || dx <= -1) {
                     currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
+                    moveType = "x";
                 }
             }, false);
             document.addEventListener("touchend", (event) => {
