@@ -26,8 +26,6 @@
     <canvas id="gameCanvas" width="300" height="600"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
         const ctx = canvas.getContext('2d');
         const blockSize = 30;
         const boardWidth = 10;
@@ -251,7 +249,7 @@
             }, false);
             document.addEventListener("touchend", (event) => {
                 moveTargetPiece = null;
-                startMoveDownGesture();
+                stopMoveDownGesture();
             }, false);
         })();
 
