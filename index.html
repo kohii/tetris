@@ -26,6 +26,8 @@
     <canvas id="gameCanvas" width="300" height="600"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
         const ctx = canvas.getContext('2d');
         const blockSize = 30;
         const boardWidth = 10;
@@ -184,10 +186,6 @@
             currentPiece.rotate();
             draw();
         });
-        canvas.addEventListener("touchstart", () => {
-            currentPiece.rotate();
-            draw();
-        });
 
         function minmax(value, min, max) {
             return Math.min(Math.max(value, min), max);
@@ -201,22 +199,20 @@
             let initialX = null;
             let moveTargetPiece = null;
 
-            function handleMoveDownGesture() {
-                if (!currentPiece) {
-                    return;
-                }
-
-                const dy = (touchendY - touchstartY) / blockSize;
-                if (dy > 1) {
-                    currentPiece.moveDown();
-                    draw();
-                    return;
-                }
-            }
-
             let moveDownGestureTimer = null;
             function startMoveDownGesture() {
-                moveDownGestureTimer = setInterval(handleMoveDownGesture, 100);
+                moveDownGestureTimer = setInterval(() => {
+                    if (currentPiece !== moveTargetPiece) {
+                        return;
+                    }
+
+                    const dy = (touchendY - touchstartY) / blockSize;
+                    if (dy > 1) {
+                        currentPiece.moveDown();
+                        draw();
+                        return;
+                    }
+                }, 400);
             }
             function stopMoveDownGesture() {
                 clearInterval(moveDownGestureTimer);
@@ -230,14 +226,14 @@
             }, false);
             document.addEventListener("touchmove", (event) => {
                 if (moveTargetPiece !== currentPiece) {
-                    moveTargetPiece = currentPiece;
+                    moveTargetPiece = null;
                     return;
                 }
                 touchendX = event.changedTouches[0].screenX;
                 touchendY = event.changedTouches[0].screenY;
-                handleGesture();
 
                 const dx = (touchendX - touchstartX) / blockSize;
+                console.log(dx);
                 if (dx > 1) {
                     currentPiece.moveToX(minmax(initialX + 1, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
