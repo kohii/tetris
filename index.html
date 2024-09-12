@@ -219,6 +219,8 @@
             document.addEventListener("touchstart", (event) => {
                 touchstartX = event.changedTouches[0].screenX;
                 touchstartY = event.changedTouches[0].screenY;
+                touchendX = touchstartX;
+                touchendY = touchstartY;
                 initialX = currentPiece.x;
                 moveTargetPiece = currentPiece;
             }, false);
