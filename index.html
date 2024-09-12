@@ -232,13 +232,8 @@
 
                 const dx = (touchendX - touchstartX) / blockSize;
                 console.log(dx);
-                if (dx > 1) {
-                    currentPiece.moveToX(minmax(initialX + 1, 0, boardWidth - currentPiece.shape[0].length));
-                    draw();
-                    return;
-                }
-                if (dx < -1) {
-                    currentPiece.moveToX(minmax(initialX - 1, 0, boardWidth - currentPiece.shape[0].length));
+                if (dx > 1 || dx < -1) {
+                    currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
                     return;
                 }
