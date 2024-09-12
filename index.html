@@ -197,6 +197,7 @@
             let touchendY = 0;
             let initialX = null;
             let moveTargetPiece = null;
+            let touchStartedAt = null;
 
             let moveDownGestureTimer = null;
             function startTrackingMoveDownGesture() {
@@ -222,6 +223,7 @@
                 touchendY = touchstartY;
                 initialX = currentPiece.x;
                 moveTargetPiece = currentPiece;
+                touchStartedAt = Date.now();
 
                 startTrackingMoveDownGesture();
             }, false);
@@ -234,6 +236,17 @@
                 touchendY = event.changedTouches[0].screenY;
 
                 const dx = Math.floor((touchendX - touchstartX) / blockSize);
+                const dy = Math.floor((touchendY - touchstartY) / blockSize);
+
+                if (dy >= 2 && Date.now() - touchStartedAt < 200) {
+                    // move to bottom if swipe down quickly
+                    while (currentPiece.isValid(currentPiece.shape, currentPiece.x, currentPiece.y + 1)) {
+                        currentPiece.moveDown();
+                    }
+                    draw();
+                    return;
+                }
+
                 if (dx >= 1 || dx <= -1) {
                     currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
