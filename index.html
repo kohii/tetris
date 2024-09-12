@@ -204,8 +204,8 @@
                         return;
                     }
 
-                    const dy = (touchendY - touchstartY) / blockSize;
-                    if (dy > 1) {
+                    const dy = Math.floor((touchendY - touchstartY) / blockSize);
+                    if (dy >= 1) {
                         currentPiece.moveDown();
                         draw();
                         return;
@@ -232,15 +232,15 @@
                 touchendX = event.changedTouches[0].screenX;
                 touchendY = event.changedTouches[0].screenY;
 
-                const dx = (touchendX - touchstartX) / blockSize;
+                const dx = Math.floor((touchendX - touchstartX) / blockSize);
                 console.log(dx);
-                if (dx > 1 || dx < -1) {
+                if (dx >= 1 || dx <= -1) {
                     currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
                     return;
                 }
-                const dy = (touchendY - touchstartY) / blockSize;
-                if (dy > 1) {
+                const dy = Math.floor((touchendY - touchstartY) / blockSize);
+                if (dy >= 1) {
                     startMoveDownGesture();
                 }
             }, false);
