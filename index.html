@@ -199,7 +199,7 @@
             let moveTargetPiece = null;
 
             let moveDownGestureTimer = null;
-            function startMoveDownGesture() {
+            function startTrackingMoveDownGesture() {
                 moveDownGestureTimer = setInterval(() => {
                     if (currentPiece !== moveTargetPiece) {
                         return;
@@ -213,7 +213,7 @@
                     }
                 }, 400);
             }
-            function stopMoveDownGesture() {
+            function stopTrackingMoveDownGesture() {
                 clearInterval(moveDownGestureTimer);
             }
 
@@ -224,6 +224,8 @@
                 touchendY = touchstartY;
                 initialX = currentPiece.x;
                 moveTargetPiece = currentPiece;
+
+                startTrackingMoveDownGesture();
             }, false);
             document.addEventListener("touchmove", (event) => {
                 if (moveTargetPiece !== currentPiece) {
@@ -234,20 +236,14 @@
                 touchendY = event.changedTouches[0].screenY;
 
                 const dx = Math.floor((touchendX - touchstartX) / blockSize);
-                console.log(dx);
                 if (dx >= 1 || dx <= -1) {
                     currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
                     draw();
-                    return;
-                }
-                const dy = Math.floor((touchendY - touchstartY) / blockSize);
-                if (dy >= 1) {
-                    startMoveDownGesture();
                 }
             }, false);
             document.addEventListener("touchend", (event) => {
                 moveTargetPiece = null;
-                stopMoveDownGesture();
+                stopTrackingMoveDownGesture();
             }, false);
         })();
 
