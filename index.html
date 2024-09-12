@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +15,13 @@
             background-color: #f0f0f0;
             font-family: Arial, sans-serif;
         }
+
         #gameCanvas {
             border: 2px solid #333;
         }
     </style>
 </head>
+
 <body>
     <canvas id="gameCanvas" width="300" height="600"></canvas>
     <script>
@@ -90,6 +93,11 @@
             moveRight() {
                 if (this.isValid(this.shape, this.x + 1, this.y)) {
                     this.x++;
+                }
+            }
+            moveToX(x) {
+                if (this.isValid(this.shape, x, this.y)) {
+                    this.x = x;
                 }
             }
 
@@ -172,10 +180,89 @@
             }
             draw();
         });
+        canvas.addEventListener("click", () => {
+            currentPiece.rotate();
+            draw();
+        });
+        canvas.addEventListener("touchstart", () => {
+            currentPiece.rotate();
+            draw();
+        });
+
+        function minmax(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        (() => {
+            let touchstartX = 0;
+            let touchstartY = 0;
+            let touchendX = 0;
+            let touchendY = 0;
+            let initialX = null;
+            let moveTargetPiece = null;
+
+            function handleMoveDownGesture() {
+                if (!currentPiece) {
+                    return;
+                }
+
+                const dy = (touchendY - touchstartY) / blockSize;
+                if (dy > 1) {
+                    currentPiece.moveDown();
+                    draw();
+                    return;
+                }
+            }
+
+            let moveDownGestureTimer = null;
+            function startMoveDownGesture() {
+                moveDownGestureTimer = setInterval(handleMoveDownGesture, 100);
+            }
+            function stopMoveDownGesture() {
+                clearInterval(moveDownGestureTimer);
+            }
+
+            document.addEventListener("touchstart", (event) => {
+                touchstartX = event.changedTouches[0].screenX;
+                touchstartY = event.changedTouches[0].screenY;
+                initialX = currentPiece.x;
+                moveTargetPiece = currentPiece;
+            }, false);
+            document.addEventListener("touchmove", (event) => {
+                if (moveTargetPiece !== currentPiece) {
+                    moveTargetPiece = currentPiece;
+                    return;
+                }
+                touchendX = event.changedTouches[0].screenX;
+                touchendY = event.changedTouches[0].screenY;
+                handleGesture();
+
+                const dx = (touchendX - touchstartX) / blockSize;
+                if (dx > 1) {
+                    currentPiece.moveToX(minmax(initialX + 1, 0, boardWidth - currentPiece.shape[0].length));
+                    draw();
+                    return;
+                }
+                if (dx < -1) {
+                    currentPiece.moveToX(minmax(initialX - 1, 0, boardWidth - currentPiece.shape[0].length));
+                    draw();
+                    return;
+                }
+                const dy = (touchendY - touchstartY) / blockSize;
+                if (dy > 1) {
+                    startMoveDownGesture();
+                }
+            }, false);
+            document.addEventListener("touchend", (event) => {
+                moveTargetPiece = null;
+                startMoveDownGesture();
+            }, false);
+        })();
 
         spawnPiece();
         gameLoop = setInterval(gameUpdate, 500);
         draw();
     </script>
 </body>
+
 </html>
