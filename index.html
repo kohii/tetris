@@ -24,11 +24,30 @@
             user-select: none;
             touch-action: manipulation;
         }
+
+        #effectContainer {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 300px;
+            height: 600px;
+            pointer-events: none;
+        }
+
+        #effectEmoji {
+            font-size: 100px;
+            opacity: 0;
+            transition: all 0.5s ease-out;
+        }
     </style>
 </head>
 
 <body>
     <canvas id="gameCanvas" width="300" height="600"></canvas>
+    <div id="effectContainer">
+        <div id="effectEmoji"></div>
+    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -131,6 +150,7 @@
                 if (board[y].every(cell => cell !== 0)) {
                     board.splice(y, 1);
                     board.unshift(Array(boardWidth).fill(0));
+                    showTadaEffect();
                 }
             }
         }
@@ -161,6 +181,21 @@
                     }
                 });
             });
+        }
+
+
+        function showTadaEffect() {
+            const emojis = ['🎉', '🎊', '🥳', '🌟', '💥', '🚀', '🏆', '🍾'];
+
+            const effectEmoji = document.getElementById('effectEmoji');
+            effectEmoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            effectEmoji.style.opacity = '1';
+            effectEmoji.style.transform = 'scale(1.8)';
+
+            setTimeout(() => {
+                effectEmoji.style.opacity = '0';
+                effectEmoji.style.transform = 'scale(1)';
+            }, 500);
         }
 
         function gameUpdate() {
