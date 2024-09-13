@@ -260,10 +260,26 @@
                     return;
                 }
 
-                if (!movedY && (dx >= 1 || dx <= -1)) {
-                    currentPiece.moveToX(minmax(initialX + dx, 0, boardWidth - currentPiece.shape[0].length));
-                    draw();
-                    movedX = true;
+                if (!movedY) {
+                    if (dx <= -1) {
+                        const numMove = currentPiece.x - (initialX + dx)
+                        for (let i = 0; i < numMove; i++) {
+                            if (currentPiece.isValid(currentPiece.shape, currentPiece.x - 1, currentPiece.y)) {
+                                currentPiece.moveLeft();
+                            }
+                        }
+                        draw();
+                        movedX = true;
+                    } else if (dx >= 1) {
+                        const numMove = (initialX + dx) - currentPiece.x;
+                        for (let i = 0; i < numMove; i++) {
+                            if (currentPiece.isValid(currentPiece.shape, currentPiece.x + 1, currentPiece.y)) {
+                                currentPiece.moveRight();
+                            }
+                        }
+                        draw();
+                        movedX = true;
+                    }
                 }
             }, false);
             document.addEventListener("touchend", (event) => {
